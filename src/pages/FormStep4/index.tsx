@@ -3,8 +3,16 @@ import { Container } from './styles';
 import { useForm, FormActions } from '../../contexts/FormContext'
 import { Theme } from '../../components/Theme'
 import { ChangeEvent, useEffect } from 'react';
+import { api } from '../../services/api'
 
+type State = {
+  currentStep: number,
+  name: string,
+  level: number,
+  email: string,
+  github: string,
 
+}
 export function FormStep4() {
   const navigate = useNavigate();
   const { state, dispatch } = useForm();
@@ -20,9 +28,33 @@ export function FormStep4() {
     }
   }, []);
 
-  function handleNextStep() {
+  let dataState = {}
+  function dataStructure({ name, level, email, github }: State) {
+    dataState = {
+      nome: state.name,
+      nivel: state.level,
+      email: state.email,
+      github: state.github
+    }
+    return dataState
+  }
+
+  async function handleNextStep() {
     if (state.email !== '' && state.github !== '') {
       localStorage.setItem('@FormData:form', JSON.stringify(state))
+
+      dataStructure(state)
+
+      console.log(dataState)
+
+      await api.post("/step4", dataState, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      })
+      console.log(dataState)
+
       alert('Seus dados foram enviados!')
     } else {
       alert('Verifique se todos dados estão preenchidos!')
